@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 /**
  * Created by yousef fadila on 04/02/2017.
  */
-public class CustomersGenerator extends DataGenerator {
-    static final String FILE_NAME = "Customers";
+public class TransactionsGenerator extends DataGenerator {
+    static final String FILE_NAME = "Transactions";
 
-    public CustomersGenerator(int numOfRecords) {
+    public TransactionsGenerator(int numOfRecords) {
         super(numOfRecords);
     }
 
@@ -20,10 +20,10 @@ public class CustomersGenerator extends DataGenerator {
             while (id <=numOfRecords) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(id).append(",") // ID
-                .append(randomString(rnd.nextInt(11)+10)).append(",") // NAME
-                .append(rnd.nextInt(61)+10).append(",") // AGE
-                .append(rnd.nextInt(10)+1).append(",") // COUNTRY_CODE
-                .append(rnd.nextFloat()*9900+100); // SALARY
+                .append(rnd.nextInt(50000)+1).append(",") // CustID
+                .append(rnd.nextFloat()*990+10).append(",") // TransTotal
+                .append(rnd.nextInt(10)+1).append(",") // TransNumItems
+                .append(randomString(rnd.nextInt(31)+20)); // TransDesc:
                 writer.println(sb.toString());
                 id++;
             }
