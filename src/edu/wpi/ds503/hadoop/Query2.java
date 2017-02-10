@@ -37,7 +37,6 @@ public class Query2 {
             return customerId;
         }
 
-        //Setter method to set the values of WebLogWritable object
         public CustomerQuery2Data set(IntWritable customerId, IntWritable count, FloatWritable sum)
         {
             this.customerId = customerId;
@@ -75,8 +74,7 @@ public class Query2 {
         private final static int TRANS_TOTAL = 2;
         private final static IntWritable one = new IntWritable(1);
 
-        public void map(Object key, Text value, Context context
-        ) throws IOException, InterruptedException {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] fields = value.toString().split(",");
             int customerId=Integer.parseInt(fields[CUST_ID]);
             float transTotal=Float.parseFloat(fields[TRANS_TOTAL]);
@@ -90,9 +88,7 @@ public class Query2 {
     public static class CustomersQuery2Combiner
             extends Reducer<IntWritable,CustomerQuery2Data,IntWritable,CustomerQuery2Data> {
 
-        public void reduce(IntWritable key, Iterable<CustomerQuery2Data> values,
-                           Context context
-        ) throws IOException, InterruptedException {
+        public void reduce(IntWritable key, Iterable<CustomerQuery2Data> values, Context context) throws IOException, InterruptedException {
             float sum = 0;
             int count = 0;
 
@@ -109,9 +105,7 @@ public class Query2 {
     public static class CustomersQuery2Reducer
             extends Reducer<IntWritable,CustomerQuery2Data,NullWritable,Text> {
 
-        public void reduce(IntWritable key, Iterable<CustomerQuery2Data> values,
-                           Context context
-        ) throws IOException, InterruptedException {
+        public void reduce(IntWritable key, Iterable<CustomerQuery2Data> values, Context context) throws IOException, InterruptedException {
             float sum = 0;
             int count = 0;
 
