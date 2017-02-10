@@ -19,7 +19,6 @@ import java.io.IOException;
 
 
 public class Query2 {
-    // The output is customerId, customerCountryCode
     public static class CustomerQuery2Data implements WritableComparable<CustomerQuery2Data> {
 
         private IntWritable customerId = new IntWritable();
@@ -67,6 +66,8 @@ public class Query2 {
             sum.readFields(dataInput);
         }
     }
+
+
         public static class CustomersQuery2Mapper
             extends Mapper<Object, Text, IntWritable, CustomerQuery2Data> {
 
@@ -135,7 +136,10 @@ public class Query2 {
 
         job.setOutputKeyClass(NullWritable.class);
         job.setOutputValueClass(Text.class);
-        
+
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Query2.CustomerQuery2Data.class);
+
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);

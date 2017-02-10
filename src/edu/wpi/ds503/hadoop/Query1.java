@@ -46,7 +46,7 @@ public class Query1 {
         job.setJarByClass(Query1.class);
 
         job.setMapperClass(Query1.CustomersQuery1Mapper.class);
-        
+
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(IntWritable.class);
 
