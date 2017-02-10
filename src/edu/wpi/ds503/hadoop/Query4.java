@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapred.join.TupleWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -21,9 +22,42 @@ import java.util.Map;
 
 public class Query4 {
     private static final String CUSTOMER_PATH = "customersPath";
+    public static class Query4Data implements Writable {
+
+        private IntWritable custCount = new IntWritable();
+        private FloatWritable trasTotal = new FloatWritable();
+
+        public IntWritable getCustCount() {
+            return custCount;
+        }
+
+        public FloatWritable getTrasTotal() {
+            return trasTotal;
+        }
+
+        public Query4Data set(IntWritable custCount, FloatWritable trasTotal)
+        {
+            this.custCount = custCount;
+            this.trasTotal = trasTotal;
+            return this;
+        }
+
+        @Override
+        public void write(DataOutput dataOutput) throws IOException {
+            custCount.write(dataOutput);
+            trasTotal.write(dataOutput);
+
+        }
+
+        @Override
+        public void readFields(DataInput dataInput) throws IOException {
+            custCount.readFields(dataInput);
+            trasTotal.readFields(dataInput);
+        }
+    }
 
     public static class  Query4Mapper
-            extends Mapper<Object, Text, IntWritable, FloatWritable> {
+            extends Mapper<Object, Text, IntWritable, Query4Data> {
 
 
         private final static int CUST_CUSTOMER_ID = 0;
@@ -31,8 +65,8 @@ public class Query4 {
 
         private final static int TRANS_CUSTOMER_ID  = 1;
         private final static int TRANS_TOTAL = 2;
-        private final static IntWritable one = new IntWritable(1);
         private Map<Integer, Integer> custToCountryMap = new HashMap<>();
+        private int countryCustomers[] = new int[10];
 
             protected void setup(Context context) throws IOException, InterruptedException {
                 Configuration conf = context.getConfiguration();
@@ -47,47 +81,54 @@ public class Query4 {
                         String[] fields = line.toString().split(",");
                         int customerId=Integer.parseInt(fields[CUST_CUSTOMER_ID]);
                         int countryCode=Integer.parseInt(fields[CUST_CONTRY]);
-                        custToCountryMap.put(customerId,countryCode);
+                        custToCountryMap.put(customerId, countryCode);
+                        // we already read all customers to make the map, the cost of counting the customer is negligible in both space and time
+                        countryCustomers[countryCode - 1] = countryCustomers[countryCode - 1] + 1 ;
                         line = br.readLine();
                     }
-                } catch (Exception e) {
-                }
 
+                } catch (Exception e) {
+                    throw new IOException("UNEXPECTED,error",e);
+                }
             }
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] fields = value.toString().split(",");
-            int customerId=Integer.parseInt(fields[TRANS_CUSTOMER_ID]);
-            float transTotal=Float.parseFloat(fields[TRANS_TOTAL]);
+            int customerId = Integer.parseInt(fields[TRANS_CUSTOMER_ID]);
+            float transTotal = Float.parseFloat(fields[TRANS_TOTAL]);
 
             Integer country = custToCountryMap.get(customerId);
             if (country == null) {
                 throw new IOException("UNEXPECTED, customer is not fount");
             }
 
-            IntWritable countryIntWriteable = new IntWritable(country);
-            FloatWritable totalFloatWriteable = new FloatWritable(transTotal);
-            context.write(countryIntWriteable, totalFloatWriteable);
+            IntWritable countryIntWritable = new IntWritable(country);
+            FloatWritable totalFloatWritable = new FloatWritable(transTotal);
+            // we submit the same totalCustomersPerCountry for each transaction, this is redundant !write  it with flag and send it only once to reducer.
+            IntWritable totalCustomersPerCountry = new IntWritable(countryCustomers[country - 1]);
+
+            context.write(countryIntWritable, new Query4Data().set(totalCustomersPerCountry,totalFloatWritable));
         }
     }
 
 
     public static class Query4Reducer
-            extends Reducer<IntWritable,FloatWritable,NullWritable,Text> {
+            extends Reducer<IntWritable, Query4Data, NullWritable, Text> {
 
-        public void reduce(IntWritable key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
+        public void reduce(IntWritable key, Iterable<Query4Data> values, Context context) throws IOException, InterruptedException {
             float min = Float.MAX_VALUE;
             float max = Float.MIN_VALUE;
-            int count = 0;
+            int customerNumber = 0;
 
-            for (FloatWritable val : values) {
-                float total = val.get();
-                min = total < min? total:min;
-                max = total > max? total:max;
-                count +=1;
+            for (Query4Data val : values) {
+                float total = val.getTrasTotal().get();
+                min = total < min? total : min;
+                max = total > max? total : max;
+                //TODO put next line out of the loop.
+                customerNumber = val.getCustCount().get();
             }
 
-            Text result = new Text(key.get() + "," + count + "," + min + "," + max);
+            Text result = new Text(key.get() + "," + customerNumber + "," + min + "," + max);
             context.write(NullWritable.get(), result);
         }
     }
@@ -103,7 +144,7 @@ public class Query4 {
         job.setOutputValueClass(Text.class);
 
         job.setMapOutputKeyClass(IntWritable.class);
-        job.setMapOutputValueClass(FloatWritable.class);
+        job.setMapOutputValueClass(Query4Data.class);
         
         job.getConfiguration().set(CUSTOMER_PATH,args[0]);
 
