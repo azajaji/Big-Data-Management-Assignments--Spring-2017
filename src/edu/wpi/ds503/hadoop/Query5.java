@@ -76,7 +76,8 @@ public class Query5 {
     public static class Step2Query5Combiner
             extends Reducer<NullWritable,Step2Query5Data, NullWritable,Step2Query5Data> {
 
-        public void reduce(NullWritable key, Iterable<Step2Query5Data> values, Context context) throws IOException, InterruptedException {
+        public void reduce(NullWritable key, Iterable<Step2Query5Data> values, Context context)
+                throws IOException, InterruptedException {
             float sum = 0;
             int count = 0;
 
@@ -89,14 +90,16 @@ public class Query5 {
             }
 
             float newAverage = sum/count;
-            context.write(key, new Step2Query5Data().set(new IntWritable(count), new FloatWritable(newAverage)));
+            context.write(key, new Step2Query5Data().set(new IntWritable(count),
+                    new FloatWritable(newAverage)));
         }
     }
 
     public static class Step2Query5Reducer
             extends Reducer<NullWritable,Step2Query5Data,NullWritable,Text> {
 
-        public void reduce(NullWritable key, Iterable<Step2Query5Data> values, Context context) throws IOException, InterruptedException {
+        public void reduce(NullWritable key, Iterable<Step2Query5Data> values, Context context)
+                throws IOException, InterruptedException {
             float sum = 0;
             int count = 0;
 
@@ -109,7 +112,7 @@ public class Query5 {
             }
 
             float newAverage = sum/count;
-            // print count for validation - should be 5 Million
+            // print count for validation
             Text result = new Text(count + "," + newAverage);
             context.write(NullWritable.get(), result);
         }
@@ -198,6 +201,7 @@ public class Query5 {
         job.setMapOutputValueClass(Query2.CustomerQuery2Data.class);
         FileInputFormat.addInputPath(job, new Path(args[1]));
         FileOutputFormat.setOutputPath(job, new Path(args[2] + STEP1_OUTPUT));
+
         boolean isSuccess = job.waitForCompletion(true);
 
         if (isSuccess == false) {
