@@ -1,0 +1,14 @@
+
+customers = LOAD 'HDFS_ROOT/Customers' USING PigStorage(',') AS (ID:int, name:chararray,age:int,country_code:int, salary:float); 
+transactions = LOAD 'HDFS_ROOT/Transactions' USING PigStorage(',') AS (TransID:int,CustID:int,TransTotal:float,TransNumItems:int, TransDesc:chararray); 
+
+C = JOIN transactions by CustID, customers by ID; 
+D = group C by C.CustID; 
+
+
+
+aggreg_min = LIMIT (ORDER aggreg by c ASC) 1; 
+RESULT = FILTER aggreg by c == aggreg_min.c;
+
+
+STORE RESULT into 'Query1_pig.out'
