@@ -21,8 +21,7 @@ import java.util.Map;
 
 public class Query5 {
     private static final String CUSTOMER_PATH = "customersPath";
-    private static final IntWritable averageKey = new IntWritable(Integer.MAX_VALUE);
-
+    private static final String STEP2_PATH = "step2Path";
 
     public static class Step2Query5Data implements Writable {
 
@@ -116,9 +115,65 @@ public class Query5 {
         }
     }
 
+    public static class  Step3Query5Mapper
+            extends Mapper<Object, Text, NullWritable, Text> {
+
+        private final static int CUST_CUSTOMER_ID = 0;
+        private final static int CUST_NAME = 1;
+        private Map<Integer, String> custIdToNameMap = new HashMap<>();
+
+        private float global_average;
+
+        protected void setup(Context context) throws IOException, InterruptedException {
+            Configuration conf = context.getConfiguration();
+            String customerPath = conf.get(CUSTOMER_PATH);
+            String step2OutputPath = conf.get(STEP2_PATH);
+            try {
+                Path pt = new Path(customerPath);
+                FileSystem fs = FileSystem.get(new Configuration());
+                BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(pt)));
+                String line;
+                line = br.readLine();
+                while (line != null) {
+                    String[] fields = line.toString().split(",");
+                    int customerId=Integer.parseInt(fields[CUST_CUSTOMER_ID]);
+                    custIdToNameMap.put(customerId, fields[CUST_NAME]);
+                    line = br.readLine();
+                }
+                // read the one line of the putput of step 2. format COUNT,AVERAGE.
+                pt= new Path(step2OutputPath);
+                br = new BufferedReader(new InputStreamReader(fs.open(pt)));
+                line = br.readLine();
+                String[] fields = line.toString().split(",");
+                global_average = Float.parseFloat(fields[1]);
+            } catch (Exception e) {
+                throw new IOException("UNEXPECTED,error",e);
+            }
+        }
+        private final static int TRANS_NUM = 1;
+
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] fields = value.toString().split(",");
+
+            // 19,105,55984.484 (query2 output is CustomerId, TotalTrans,Sum
+            int customerId=Integer.parseInt(fields[CUST_CUSTOMER_ID]);
+            int transNum=Integer.parseInt(fields[TRANS_NUM]);
+
+            if (transNum > global_average) {
+                String name = custIdToNameMap.get(customerId);
+                if (name == null) {
+                    throw new IOException("UNEXPECTED, customer is not fount");
+                }
+                // print the transNum to validate that all of customers will be higher than output from step2
+                context.write(NullWritable.get(), new Text(name + "," + transNum));
+            }
+        }
+    }
+
 
     private final static String STEP1_OUTPUT ="/step1";
     private final static String STEP2_OUTPUT ="/step2";
+    private final static String STEP3_OUTPUT ="/final";
     /*
     args[0] ==> Customers
     args[1] ==> Transactions
@@ -146,14 +201,13 @@ public class Query5 {
         boolean isSuccess = job.waitForCompletion(true);
 
         if (isSuccess == false) {
-            throw new Exception("first map reduced job failed to complete.");
+            throw new Exception("1st map reduced job has failed to complete.");
         }
 
         Configuration conf2 = new Configuration();
         Job job2 = Job.getInstance(conf2, "Project1, Query5 - step2");
         job2.setJarByClass(Query5.class);
 
-        // first step is running Query2.
         job2.setMapperClass(Step2Query5Mapper.class);
         job2.setCombinerClass(Step2Query5Combiner.class);
         job2.setReducerClass(Step2Query5Reducer.class);
@@ -167,9 +221,27 @@ public class Query5 {
         FileOutputFormat.setOutputPath(job2, new Path(args[2] + STEP2_OUTPUT));
         isSuccess = job2.waitForCompletion(true);
         if (isSuccess == false) {
-            throw new Exception("second map reduced task has job to complete.");
+            throw new Exception("2nd map reduced job has failed to complete.");
         }
 
+
+
+        Configuration conf3 = new Configuration();
+        Job job3 = Job.getInstance(conf2, "Project1, Query5 - step3");
+        job3.setJarByClass(Query5.class);
+        job3.getConfiguration().set(CUSTOMER_PATH,args[0]);
+        job3.getConfiguration().set(STEP2_PATH, args[2] + STEP2_OUTPUT + "/part-r-00000");
+
+        job3.setMapperClass(Step3Query5Mapper.class);
+        job3.setOutputKeyClass(NullWritable.class);
+        job3.setOutputValueClass(Text.class);
+
+        FileInputFormat.addInputPath(job3, new Path(args[2] + STEP1_OUTPUT));
+        FileOutputFormat.setOutputPath(job3, new Path(args[2] + STEP3_OUTPUT));
+        isSuccess = job3.waitForCompletion(true);
+        if (isSuccess == false) {
+            throw new Exception("3rd map reduced task has failed to complete.");
+        }
 
        // System.exit(job.waitForCompletion(true) ? 0 : 1);
         System.exit(0);
