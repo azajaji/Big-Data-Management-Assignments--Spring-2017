@@ -1,5 +1,5 @@
 customers = LOAD 'Customers' USING PigStorage(',')  AS (ID:int,NAME:chararray,AGE:int,COUNTRYCODE:int,SALARY:double);
-A = group customers by COUNTRYCODE
+A = group customers by COUNTRYCODE;
 E = foreach A generate group, COUNT(customers) as number_of_c;
 R = filter E by number_of_c > 5000 or number_of_c < 2000;
-STORE R into 'Query3_pig.out'
+STORE R into 'Query3_pig.out';
