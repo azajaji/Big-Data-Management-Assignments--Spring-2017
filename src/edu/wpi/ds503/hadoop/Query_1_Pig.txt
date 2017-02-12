@@ -12,4 +12,4 @@ aggreg_min = LIMIT (ORDER aggreg by c ASC) 1;
 RESULT = FILTER aggreg by c == aggreg_min.c;
 
 
-STORE RESULT into 'Query1_pig.out'
+STORE RESULT into 'Query1_pig.out';
