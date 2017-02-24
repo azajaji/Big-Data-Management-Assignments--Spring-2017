@@ -1,0 +1,11 @@
+customers = LOAD 'Customers' USING PigStorage(',') AS (ID:int, NAME:chararray,AGE:int,COUNTRY_CODE:int, SALARY:float);
+ 
+transactions = LOAD 'Transactions' USING PigStorage(',') AS (TransID:int,CustID:int,TransTotal:float,TransNumItems:int, TransDesc:chararray); 
+
+C = JOIN transactions by CustID, customers by ID using 'replicated'; 
+D = group C by CustID; 
+
+E = foreach D generate group,C.NAME,C.SALARY,COUNT(C) AS NumOfTransactions,SUM(C.TransTotal) as TotalSum, MIN(C.TransNumItems) as MinItems;
+
+STORE E into 'Query2_pig.out'
+

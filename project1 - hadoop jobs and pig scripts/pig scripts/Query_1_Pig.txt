@@ -1,0 +1,15 @@
+
+customers = LOAD 'Customers' USING PigStorage(',') AS (ID:int, NAME:chararray,AGE:int, COUNTRY_CODE:int, SALARY:float); 
+transactions = LOAD 'Transactions' USING PigStorage(',') AS (TransID:int,CustID:int,TransTotal:float,TransNumItems:int, TransDesc:chararray); 
+
+C = JOIN transactions by CustID, customers by ID; 
+D = group C by CustID; 
+
+
+aggreg = FOREACH D GENERATE C.NAME, COUNT(C) as c; 
+
+aggreg_min = LIMIT (ORDER aggreg by c ASC) 1; 
+RESULT = FILTER aggreg by c == aggreg_min.c;
+
+
+STORE RESULT into 'Query1_pig.out';
