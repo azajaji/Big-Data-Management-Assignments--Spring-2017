@@ -57,7 +57,7 @@ public class KMeans {
 
 	public static class KmeansMapper 
 
-	extends Mapper<LongWritable, PointWritable, Text, PointWritable>{
+	extends Mapper<LongWritable, PointWritable, Text, Text>{
 		
 		private static final Log LOG_JOB = LogFactory.getLog(KmeansMapper.class);
 		
@@ -161,19 +161,19 @@ public class KMeans {
 		    LOG.info("point :"+ String.format("%f %f", x, y) + " goes to " + String.format("%f %f", selected_cluster.getx().get(), selected_cluster.gety().get()));
 
 		    
-			context.write(new Text("a"), value);
+			context.write(new Text(selected_cluster.toString()),new Text(value.toString())  );
 		    //context.write(selected_cluster, value);
 		}
 
 	}
 
 	public static class KmeansReducer 
-	extends Reducer<Text, PointWritable,Text,Text> {
+	extends Reducer<Text, Text,Text,Text> {
 
 		private HashMap<String,ArrayList<PointWritable>> clusters  = new HashMap<String,ArrayList<PointWritable>>();
 		
 		
-		public void reduce(Text centroidid, Iterable<PointWritable> points, 
+		public void reduce(Text centroidid, Iterable<Text> points, 
 				Context context
 				) throws IOException, InterruptedException {
 			
@@ -191,16 +191,24 @@ public class KMeans {
 			
 			
 
-			for (PointWritable point : points) {
-				clusters.get(key).add(point);
-			}
+//			for (PointWritable point : points) {
+//				clusters.get(key).add(point);
+//			}
 			
 			
 			
 			int num = 0;
 			float centerx=0.0f;
 			float centery=0.0f;
-			for (PointWritable point : points) {
+			for (Text point_str : points) {
+				
+				Scanner reader  = new Scanner (new StringReader(point_str.toString()));
+				float xx = reader.nextFloat();
+				float yy = reader.nextFloat();
+				PointWritable point = new PointWritable();
+				point.set(xx, yy);
+				
+				
 				num++;
 				FloatWritable X = point.getx();
 				FloatWritable Y = point.gety();
@@ -213,12 +221,15 @@ public class KMeans {
 				centerx += x;
 				centery += y;
 			}
+			float sumx = centerx;
+			float sumy = centery;
+			
 			centerx = centerx/num;
 			centery = centery/num;
 			
 			LOG.info("new centroid:"+ String.valueOf(centerx) + " " + String.valueOf(centery)  );
 			
-			Text result = new Text(String.valueOf(centerx) + " " + String.valueOf(centery));
+			Text result = new Text(String.valueOf(centerx) + " " + String.valueOf(centery) + "," +  String.valueOf(sumx) + " " + String.valueOf(sumy) + "," + num);
 			context.write(centroidid, result);
 			
 		}
@@ -347,7 +358,7 @@ public class KMeans {
 		FileInputFormat.addInputPath(job, new Path(args[2]));
 
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(PointWritable.class);
+		job.setMapOutputValueClass(Text.class);
 
 		FileOutputFormat.setOutputPath(job, new Path(args[3]));
 		job.setOutputKeyClass(Text.class);
