@@ -32,8 +32,8 @@ public class PointRecordReader  extends RecordReader<LongWritable, PointWritable
 			return false;
 		}
 		Scanner reader  = new Scanner (new StringReader(lineReader.getCurrentValue().toString()));
-		float x = reader.nextFloat();
-		float y = reader.nextFloat();
+		int x = reader.nextInt();
+		int y = reader.nextInt();
 		value = new PointWritable();
 		value.set(x,y);
 		return true;

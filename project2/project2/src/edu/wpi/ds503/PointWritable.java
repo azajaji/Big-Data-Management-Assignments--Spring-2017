@@ -5,47 +5,45 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.io.WritableUtils;
+
 
 public final class PointWritable implements WritableComparable<PointWritable> {
 
-    private FloatWritable x;
-    private FloatWritable y;
+    private IntWritable x;
+    private IntWritable y;
 
     public PointWritable() {
     	super();
-    	x = new FloatWritable();
-    	y = new FloatWritable();
+    	x = new IntWritable();
+    	y = new IntWritable();
     	
     }
-    public PointWritable(float x, float y) {
+    public PointWritable(int x, int y) {
         super();
-        set(new FloatWritable(x), new FloatWritable(y));
+        set(new IntWritable(x), new IntWritable(y));
     }
 
-    public PointWritable(FloatWritable x, FloatWritable y) {
+    public PointWritable(IntWritable x, IntWritable y) {
         set(x, y);
     }
     
-    public void set(float x, float y) {
-    	set(new FloatWritable(x), new FloatWritable(y));
+    public void set(int x, int y) {
+    	set(new IntWritable(x), new IntWritable(y));
     }
     
 
-    private void set(FloatWritable x, FloatWritable y) {
+    private void set(IntWritable x, IntWritable y) {
         this.x = x;
         this.y = y;
     }
 
-    public FloatWritable getx() {
+    public IntWritable getx() {
         return x;
     }
 
-    public FloatWritable gety() {
+    public IntWritable gety() {
         return y;
     }
 
@@ -62,19 +60,32 @@ public final class PointWritable implements WritableComparable<PointWritable> {
 
     @Override
     public int hashCode() {
-        return x.hashCode() * 200 + y.hashCode();
+        return x.hashCode() * 1346 + y.hashCode();
     }
 
     @Override
     public int compareTo(PointWritable o) {
 		// TODO Auto-generated method stub
-		return (int) (Math.pow( this.x.get()-o.x.get(),2)+ Math.pow( this.y.get()-o.y.get(),2));
+		return this.toString().compareTo(o.toString());
 	}
 
 
 
     public String toString() {
 		return String.valueOf(x) + " " +  String.valueOf(y);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		if (!(obj instanceof PointWritable))
+			return false;
+		
+		PointWritable o = (PointWritable) obj;
+		if (o.x.get() != x.get())
+			return false;
+		if (o.y.get() != y.get())
+			return false;
+		return true;
 	}
 
 
@@ -83,14 +94,14 @@ public final class PointWritable implements WritableComparable<PointWritable> {
 
 //public class PointWritable implements WritableComparable<PointWritable> {
 //
-//    private FloatWritable x,y;	
+//    private IntWritable x,y;	
 //
 //    public PointWritable() {
-//	this.x = new FloatWritable();
-//	this.y = new FloatWritable();		
+//	this.x = new IntWritable();
+//	this.y = new IntWritable();		
 //    }
 //	
-//    public void set ( float a, float b)
+//    public void set ( Int a, Int b)
 //    {
 //	this.x.set(a);
 //	this.y.set(b);	
@@ -110,11 +121,11 @@ public final class PointWritable implements WritableComparable<PointWritable> {
 //    }
 //	
 //	
-//    public FloatWritable getx() {
+//    public IntWritable getx() {
 //	return x;
 //    }
 //
-//    public FloatWritable gety() {
+//    public IntWritable gety() {
 //	return y;
 //    }
 //
