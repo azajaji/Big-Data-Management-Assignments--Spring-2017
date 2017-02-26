@@ -25,7 +25,7 @@ public class PSetGenerator extends DataGenerator {
             while (id <nb) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(randomInt(MIN,MAX)).append(" ")
-                        .append(id);
+                        .append(randomInt(MIN,MAX));
                 writer.println(sb.toString());
                 id++;
             }

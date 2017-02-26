@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Scanner;
@@ -19,6 +21,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapreduce.Job;
@@ -54,7 +57,7 @@ public class KMeans {
 
 	public static class KmeansMapper 
 
-	extends Mapper<LongWritable, PointWritable, PointWritable, PointWritable>{
+	extends Mapper<LongWritable, PointWritable, Text, PointWritable>{
 		
 		private static final Log LOG_JOB = LogFactory.getLog(KmeansMapper.class);
 		
@@ -101,7 +104,26 @@ public class KMeans {
 
 		public void map(LongWritable key, PointWritable value, Context context
 				) throws IOException, InterruptedException {
+			
+			
+			try
+			{ 
+				
+			
+			if (value == null ) return;
+			
+			
 
+			
+			
+			float xx = value.getx().get();
+			float yy = value.gety().get();
+			xx++;
+			yy++;
+			
+			} catch (Exception e) {
+				return;
+			}
 			
 			LOG_JOB.info("MAP");
 		    
@@ -128,7 +150,7 @@ public class KMeans {
 		    	float distance = (float) (Math.pow( x-centroid_x,2)+ Math.pow( y-centroid_y,2));
 		    	
 		    	if (distance < min_dist) {
-		    		distance = min_dist;
+		    		min_dist = distance;
 		    		selected_cluster_index = i;
 		    	}
 		      }
@@ -139,18 +161,42 @@ public class KMeans {
 		    LOG.info("point :"+ String.format("%f %f", x, y) + " goes to " + String.format("%f %f", selected_cluster.getx().get(), selected_cluster.gety().get()));
 
 		    
-			context.write(selected_cluster, value);
+			context.write(new Text("a"), value);
+		    //context.write(selected_cluster, value);
 		}
 
 	}
 
 	public static class KmeansReducer 
-	extends Reducer<PointWritable, PointWritable,PointWritable,Text> {
+	extends Reducer<Text, PointWritable,Text,Text> {
 
-		public void reduce(PointWritable clusterid, Iterable<PointWritable> points, 
+		private HashMap<String,ArrayList<PointWritable>> clusters  = new HashMap<String,ArrayList<PointWritable>>();
+		
+		
+		public void reduce(Text centroidid, Iterable<PointWritable> points, 
 				Context context
 				) throws IOException, InterruptedException {
+			
+//			Scanner reader  = new Scanner (new StringReader(cluster_str.toString()));
+//			float x = reader.nextFloat();
+//			float y = reader.nextFloat();
+//			PointWritable clusterid = new PointWritable();
+//			clusterid.set(x, y);
+			
+			String key = centroidid.toString();
+			
+			if (!clusters.containsKey(key)) {
+				clusters.put(key, new ArrayList<PointWritable>());
+			}
+			
+			
 
+			for (PointWritable point : points) {
+				clusters.get(key).add(point);
+			}
+			
+			
+			
 			int num = 0;
 			float centerx=0.0f;
 			float centery=0.0f;
@@ -160,17 +206,46 @@ public class KMeans {
 				FloatWritable Y = point.gety();
 				float x = X.get();
 				float y = Y.get();
+				
+				if (Float.isNaN(x) || Float.isNaN(y)) {
+					continue;
+				}
 				centerx += x;
 				centery += y;
 			}
 			centerx = centerx/num;
 			centery = centery/num;
 			
-			LOG.info("new centroid:"+ String.format("%f %f", centerx, centery) );
+			LOG.info("new centroid:"+ String.valueOf(centerx) + " " + String.valueOf(centery)  );
 			
-			String preres = String.format("%f %f", centerx, centery);
-			Text result = new Text(preres);
-			context.write(clusterid, result);
+			Text result = new Text(String.valueOf(centerx) + " " + String.valueOf(centery));
+			context.write(centroidid, result);
+			
+		}
+		
+		protected void cleanup (Context context) throws IOException, InterruptedException {
+//			for ( ArrayList<PointWritable> c :  clusters.values() ) {
+//				int num = 0;
+//				float centerx=0.0f;
+//				float centery=0.0f;
+//				for (PointWritable point : c) {
+//					num++;
+//					FloatWritable X = point.getx();
+//					FloatWritable Y = point.gety();
+//					float x = X.get();
+//					float y = Y.get();
+//					centerx += x;
+//					centery += y;
+//				}
+//				centerx = centerx/num;
+//				centery = centery/num;
+//				
+//				LOG.info("new centroid:"+ String.format("%f %f", centerx, centery) );
+//				
+//				String preres = String.format("%f %f", centerx, centery);
+//				Text result = new Text(preres);
+//				//context.write(new Text(""), result);
+//			}
 		}
 	}
 
@@ -229,7 +304,9 @@ public class KMeans {
 			org.apache.hadoop.fs.FileSystem hdfs = org.apache.hadoop.fs.FileSystem.get(conf);
 			
 			//FSDataInputStream in = hdfs.open(new Path(""));
-			Path path_clusters_input = new Path("clusters_input_0");
+			String init_input_fname = String.format("clusters_input_0_%s", String.valueOf(System.nanoTime())) ; 
+			
+			Path path_clusters_input = new Path(init_input_fname);
 		    FSDataOutputStream out = hdfs.create(path_clusters_input);
 		    
 		    
@@ -269,11 +346,11 @@ public class KMeans {
 		job.setInputFormatClass (PointFileInputFormat.class);
 		FileInputFormat.addInputPath(job, new Path(args[2]));
 
-		job.setMapOutputKeyClass(PointWritable.class);
+		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(PointWritable.class);
 
 		FileOutputFormat.setOutputPath(job, new Path(args[3]));
-		job.setOutputKeyClass(PointWritable.class);
+		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 
 		System.exit(job.waitForCompletion(true) ? 0 : 1);
