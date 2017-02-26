@@ -162,11 +162,9 @@ public class SpatialJoin {
 
         public boolean overlapRect(SpatialJoinData rect) {
 
-            // If one rectangle is on left side of other
             if (this.x.get() > rect.x.get() + rect.width.get() || rect.x.get() > this.x.get() + this.width.get())
                 return false;
 
-            // If one rectangle is above other
             if (this.y.get() < rect.y.get() - rect.height.get() || rect.y.get() < this.y.get() - this.height.get())
                 return false;
 
