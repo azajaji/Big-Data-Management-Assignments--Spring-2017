@@ -66,7 +66,11 @@ public final class PointWritable implements WritableComparable<PointWritable> {
     @Override
     public int compareTo(PointWritable o) {
 		// TODO Auto-generated method stub
-		return this.toString().compareTo(o.toString());
+		int i = x.compareTo(o.x);
+		if (i == 0 ) 
+			return y.compareTo(o.y);
+		else
+			return i;
 	}
 
 
@@ -91,55 +95,3 @@ public final class PointWritable implements WritableComparable<PointWritable> {
 
 }
 
-
-//public class PointWritable implements WritableComparable<PointWritable> {
-//
-//    private IntWritable x,y;	
-//
-//    public PointWritable() {
-//	this.x = new IntWritable();
-//	this.y = new IntWritable();		
-//    }
-//	
-//    public void set ( Int a, Int b)
-//    {
-//	this.x.set(a);
-//	this.y.set(b);	
-//    }
-//	
-//    
-//    @Override
-//    public void readFields(DataInput in) throws IOException {
-//	x.readFields(in);
-//	y.readFields(in);
-//    }
-//
-//    @Override
-//    public void write(DataOutput out) throws IOException {
-//	x.write(out);
-//	y.write(out);
-//    }
-//	
-//	
-//    public IntWritable getx() {
-//	return x;
-//    }
-//
-//    public IntWritable gety() {
-//	return y;
-//    }
-//
-//
-//
-//	@Override
-//	public int compareTo(PointWritable o) {
-//		// TODO Auto-generated method stub
-//		return (int) (Math.pow( this.x.get()-o.x.get(),2)+ Math.pow( this.y.get()-o.y.get(),2));
-//	}
-//
-//	@Override
-//	public String toString() {
-//		return String.valueOf(x) + " " +  String.valueOf(y);
-//	}
-//
-//}
