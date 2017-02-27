@@ -21,13 +21,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public  class KMeansReducer  extends Reducer<PointWritable, PointWritable,NullWritable,Text> {
 
-	public enum UNCHANGED_COUNTER {
-		VALUE
-	}
-
 	private ArrayList<PointWritable> clusters  = new ArrayList<PointWritable>();
-
-	Reporter reporter;
 
 	public void reduce(PointWritable centroidid, Iterable<PointWritable> points,Context context	) throws IOException, InterruptedException {
 
@@ -45,7 +39,7 @@ public  class KMeansReducer  extends Reducer<PointWritable, PointWritable,NullWr
 
 		PointWritable result_point = new PointWritable(x,y);
 		//Text result = new Text(String.valueOf(result_point.getx().get()) + " " + String.valueOf(result_point.gety().get()) + " Num: "+num  + ", sumx: " + sumx + ", sumy: " + sumy);
-		Text result = new Text(String.valueOf(result_point.getx().get()) + " " + String.valueOf(result_point.gety().get()));
+		Text result = new Text(result_point.getx().get() + " " + result_point.gety().get());
 
 		clusters.add(result_point);
 
