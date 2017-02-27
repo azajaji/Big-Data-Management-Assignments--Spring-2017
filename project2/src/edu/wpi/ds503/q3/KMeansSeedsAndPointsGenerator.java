@@ -10,7 +10,7 @@ public class KMeansSeedsAndPointsGenerator extends DataGenerator {
     static final String KSEED_FILE_NAME = "kmeans_seed";
 
     static final int MIN = 1;
-    static final int MAX = 1000;
+    static final int MAX = 10000;
 
     public KMeansSeedsAndPointsGenerator(int numOfRecords) {
         super(numOfRecords);
