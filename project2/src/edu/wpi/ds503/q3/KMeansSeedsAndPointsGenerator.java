@@ -39,10 +39,9 @@ public class KMeansSeedsAndPointsGenerator extends DataGenerator {
             PrintWriter writer = new PrintWriter(fname, "UTF-8");
             while (id <k) {
 
-                int arbitrary_cluster =randomInt(0,k);
                 StringBuilder sb = new StringBuilder();
-                sb.append((int )randomInt(MIN,MAX) / arbitrary_cluster).append(" ")
-                        .append((int )randomInt(MIN,MAX) / arbitrary_cluster);
+                sb.append((int )randomInt(MIN,MAX) ).append(" ")
+                        .append((int )randomInt(MIN,MAX) );
                 writer.println(sb.toString());
                 id++;
             }
