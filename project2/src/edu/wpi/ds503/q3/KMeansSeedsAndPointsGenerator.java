@@ -61,7 +61,7 @@ public class KMeansSeedsAndPointsGenerator extends DataGenerator {
     }
 
     @Override
-    void generate() {
+   public void generate() {
         // TODO Auto-generated method stub
 
     }

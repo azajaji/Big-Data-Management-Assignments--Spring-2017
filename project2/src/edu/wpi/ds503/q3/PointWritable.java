@@ -26,10 +26,6 @@ public final class PointWritable implements WritableComparable<PointWritable> {
         set(new IntWritable(x), new IntWritable(y));
     }
 
-    public PointWritable(IntWritable x, IntWritable y) {
-        set(x, y);
-    }
-
     public void set(int x, int y) {
         set(new IntWritable(x), new IntWritable(y));
     }

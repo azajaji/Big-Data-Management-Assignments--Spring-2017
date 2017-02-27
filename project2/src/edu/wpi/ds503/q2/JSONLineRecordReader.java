@@ -38,8 +38,6 @@ public class JSONLineRecordReader
 			throws IOException {
 
 		FileSplit split = (FileSplit) genericSplit;
-
-
 		org.apache.hadoop.conf.Configuration job = context.getConfiguration();
 		this.maxLineLength = job.getInt(
 				"mapred.linerecordreader.maxlength",
@@ -73,9 +71,7 @@ public class JSONLineRecordReader
 		}
 
 		this.pos = start;
-
 	}
-
 
 	@Override
 	public boolean nextKeyValue() throws IOException, InterruptedException {
@@ -141,18 +137,15 @@ public class JSONLineRecordReader
 		}
 	}
 
-
 	@Override
 	public LongWritable getCurrentKey() throws IOException, InterruptedException {
 		return key;
 	}
 
-
 	@Override
 	public Text getCurrentValue() throws IOException, InterruptedException {
 		return value;
 	}
-
 
 	@Override
 	public float getProgress() throws IOException, InterruptedException {

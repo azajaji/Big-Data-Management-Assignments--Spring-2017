@@ -13,9 +13,8 @@ public class PointFileInputFormat extends FileInputFormat<LongWritable, PointWri
 
     @Override
     public RecordReader<LongWritable, PointWritable> createRecordReader(
-	InputSplit arg0, TaskAttemptContext arg1) throws IOException,
-	InterruptedException {
-	return new PointRecordReader();
+            InputSplit arg0, TaskAttemptContext arg1) throws IOException, InterruptedException {
+        return new PointRecordReader();
     }
 
 }

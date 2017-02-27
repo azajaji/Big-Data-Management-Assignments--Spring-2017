@@ -57,17 +57,8 @@ public class KMeansMapper
 	}
 
 	public void map(LongWritable key, PointWritable value, Context context) throws IOException, InterruptedException {
-		try
-		{
-		if (value == null ) return;
-			int xx = value.getx().get();
-			int yy = value.gety().get();
-			xx++;
-			yy++;
 
-		} catch (Exception e) {
-			return;
-		}
+		if (value == null ) return;
 
 		LOG_JOB.info("MAP");
 
