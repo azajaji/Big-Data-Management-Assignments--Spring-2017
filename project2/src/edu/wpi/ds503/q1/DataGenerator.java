@@ -1,4 +1,4 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q1;
 
 import java.util.Random;
 
@@ -14,17 +14,17 @@ public abstract class DataGenerator {
         this.numOfRecords = numOfRecords;
     }
 
-    abstract void generate();
+    public abstract void generate();
 
 
-    String randomString( int len ) {
+    public String randomString( int len ) {
         StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++)
             sb.append(AB.charAt(rnd.nextInt(AB.length())));
         return sb.toString();
     }
 
-    int randomInt( int min, int max ) {
+    public int randomInt( int min, int max ) {
         return rnd.nextInt(max - min + 1) + min;
     }
 }

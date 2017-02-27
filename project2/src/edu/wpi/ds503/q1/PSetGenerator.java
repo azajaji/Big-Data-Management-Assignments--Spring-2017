@@ -1,4 +1,4 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q1;
 
 import java.io.PrintWriter;
 

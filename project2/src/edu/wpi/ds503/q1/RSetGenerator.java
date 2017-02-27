@@ -1,4 +1,6 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q1;
+
+import edu.wpi.ds503.q1.DataGenerator;
 
 import java.io.PrintWriter;
 
