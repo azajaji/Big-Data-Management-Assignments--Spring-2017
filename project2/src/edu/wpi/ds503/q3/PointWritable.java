@@ -1,10 +1,9 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q3;
 
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Scanner;
 
 import org.apache.hadoop.io.IntWritable;

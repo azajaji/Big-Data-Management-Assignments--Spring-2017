@@ -1,13 +1,9 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q3;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 
 public  class KMeansCombiner  extends Reducer<PointWritable, PointWritable,PointWritable,PointWritable> {
 

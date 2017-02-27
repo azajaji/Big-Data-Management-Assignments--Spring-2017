@@ -1,7 +1,6 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q3;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -21,11 +20,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
-
-import edu.wpi.ds503.PointFileInputFormat;
-import edu.wpi.ds503.PointWritable;
-
 
 
 import org.apache.hadoop.fs.FSDataInputStream;

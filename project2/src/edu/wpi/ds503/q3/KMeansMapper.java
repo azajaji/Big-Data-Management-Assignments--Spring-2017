@@ -1,4 +1,4 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q3;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Scanner;
-
-import org.apache.hadoop.io.Text;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
