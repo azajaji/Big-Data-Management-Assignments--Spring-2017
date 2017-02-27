@@ -1,7 +1,6 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q2;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,8 +13,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Text;
 
 public class JSONTest {
 

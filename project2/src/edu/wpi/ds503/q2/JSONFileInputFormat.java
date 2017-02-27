@@ -1,4 +1,4 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q2;
 import java.io.IOException;
 
 import org.apache.hadoop.io.*;

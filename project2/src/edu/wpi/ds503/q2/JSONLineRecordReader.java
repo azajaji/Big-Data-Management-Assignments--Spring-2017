@@ -1,9 +1,7 @@
-package edu.wpi.ds503;
+package edu.wpi.ds503.q2;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.security.auth.login.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
