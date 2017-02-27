@@ -60,7 +60,6 @@ public class SpatialJoin {
 
             if (x != null ? !x.equals(grid.x) : grid.x != null) return false;
             return y != null ? y.equals(grid.y) : grid.y == null;
-
         }
 
         @Override
@@ -183,7 +182,6 @@ public class SpatialJoin {
             if (width != null ? !width.equals(that.width) : that.width != null) return false;
             if (height != null ? !height.equals(that.height) : that.height != null) return false;
             return id != null ? id.equals(that.id) : that.id == null;
-
         }
 
         @Override
